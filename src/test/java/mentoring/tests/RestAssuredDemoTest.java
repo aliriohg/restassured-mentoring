@@ -106,22 +106,29 @@ public class RestAssuredDemoTest {
 
     static Stream<Arguments> stringIntAndListProvider() {
         return Stream.of(
-                Arguments.of("user","passwd"),
-                Arguments.of("alriio","contra")
+                Arguments.of("user", "passwd"),
+                Arguments.of("alriio", "contra")
         );
     }
 
     @ParameterizedTest
     @MethodSource("stringIntAndListProvider")
-    void testBasicAuthRestAssured(String user,String password) {
-        String url="https://httpbin.org";
+    void testBasicAuthRestAssured(String user, String password) {
+        String url = "https://httpbin.org";
         given().log().all().baseUri(url).basePath("/basic-auth/{user}/{passwd}")
-                .pathParam("user",user).pathParam("passwd",password)
-                .auth().basic(user,password)
+                .pathParam("user", user).pathParam("passwd", password)
+                .auth().basic(user, password)
                 .log().all().when().get()
                 .then().log().all().statusCode(200);
     }
 
-
+    @Test
+    void testBaererAuthRestAssured() {
+        String url = "https://httpbin.org";
+        given().log().all().baseUri(url).basePath("/basic-auth/bearer")
+                .header("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJkc2IuZWFzeXNvbC5uZXQvIiwic3ViIjoiRUFTWVNPTC8zNDY0NSIsImV4cCI6MTYwMDkxNDg3MH0.fcSdWsM9xo7YlMJi76cFNkZu_NUfPrs39RAxVi8QA00")
+                .log().all().when().get()
+                .then().log().all().statusCode(200);
+    }
 
 }
