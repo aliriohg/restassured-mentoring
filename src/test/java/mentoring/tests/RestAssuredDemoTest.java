@@ -1,6 +1,7 @@
 package mentoring.tests;
 
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import mentoring.entities.UpdateUserResponse;
 import mentoring.entities.UserBody;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.stream.Stream;
 
-import static io.restassured.RestAssured.*;
+import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
 public class RestAssuredDemoTest {
@@ -20,12 +21,14 @@ public class RestAssuredDemoTest {
     private String uri = "https://reqres.in/";
     private String basePath = "api";
 
+
     @Test
     public void testGetRestAssured() {
 
         given().log().all().baseUri(uri).basePath(basePath)
                 .when().get("/users/2")
                 .then().log().all().statusCode(200);
+
     }
 
     @ParameterizedTest
@@ -38,12 +41,16 @@ public class RestAssuredDemoTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {1, 3, 5})
+    @ValueSource(ints = {2, 3, 5})
     public void testGetWithQueryParamRestAssured(int queryParam) {
 
-        given().log().all().baseUri(uri).basePath(basePath).queryParams("page", queryParam)
+        Response response = given().log().all().baseUri(uri).basePath(basePath).queryParams("page", queryParam)
                 .when().get("users")
-                .then().log().all().statusCode(200);
+                .then().log().all().statusCode(200).extract().response();
+
+        response.jsonPath().get("data.findAll {user -> user.id > 10}");
+        response.jsonPath().getList("data");
+
     }
 
 
@@ -65,6 +72,7 @@ public class RestAssuredDemoTest {
                 .body("data", hasSize(6))
                 .body("page", equalTo(1))
                 .body("data.id", hasItems(1, 2, 3, 4, 5, 6));
+
     }
 
     @Test
@@ -78,6 +86,7 @@ public class RestAssuredDemoTest {
                 .then().log().all()
                 .statusCode(201)
                 .body("id", notNullValue());
+
     }
 
     @Test
